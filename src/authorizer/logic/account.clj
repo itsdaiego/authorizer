@@ -1,7 +1,9 @@
 (ns authorizer.logic.account)
 
-(defn account-duplicated?
+(defn is-account-initialized?
   [account]
-  (cond
-    (= account {}) false
-    :else true))
+  (not= (:account account) nil))
+
+(defn is-card-active?
+  [account]
+  (= (:active-card account) true))

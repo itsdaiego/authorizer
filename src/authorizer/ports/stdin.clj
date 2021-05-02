@@ -3,14 +3,13 @@
             [authorizer.controllers.transaction :as transaction-controller]
             [authorizer.ports.storage :refer [create-in-memory-storage]]))
 
-
 (defn perform-operation
   [payload storage]
-  (cond 
-    (:contains? payload :account) (account-controller/create-account payload storage)
-    (:contains? payload :transaction) (transaction-controller/create-transaction)))
+  (cond
+    (.contains payload "account") (account-controller/create-account payload storage)
+    (.contains payload "transaction") (transaction-controller/create-transaction! payload storage)))
 
-(defn -main 
+(defn -main
   []
   (let [storage (create-in-memory-storage)]
     (doseq [payload (line-seq (java.io.BufferedReader. *in*))]

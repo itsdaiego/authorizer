@@ -4,7 +4,7 @@
   :dependencies [[org.clojure/clojure "1.10.1"]
                  [prismatic/schema "1.1.12"]
                  [cheshire "5.8.0"]
-                 [org.clojure/tools.logging "1.1.0"]]
+                 [clj-time "0.15.2"]]
 
   :plugins [[jonase/eastwood "0.4.0"]]
 
