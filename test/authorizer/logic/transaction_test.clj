@@ -42,7 +42,7 @@
       (is (= (has-high-frequency-transactions? transactions) expected)))))
 
 (deftest has-doubled-transactions
-  (testing "should return true if there's more than one transaction create in under three minutes with the same amount and merchant"
+  (testing "should return true if there's more than one transaction create in under two minutes with the same amount and merchant"
     (let [transactions '({:merchant "Burger King", :amount 101, :time "2021-02-13T11:03:00.000Z"},
                          {:merchant "Burger Queen", :amount 99, :time "2021-02-13T11:03:00.000Z"},
                          {:merchant "Burger King", :amount 101, :time "2021-02-13T11:02:26.000Z"}),
@@ -50,7 +50,7 @@
       (is (= (has-doubled-transactions? transactions) expected)))))
 
 (deftest has-not-doubled-transactions
-  (testing "should return false if there's no more than one transaction create in under three minutes with the same amount and merchant"
+  (testing "should return false if there's no more than one transaction create in under two minutes with the same amount and merchant"
     (let [transactions '({:merchant "McNuggets", :amount 101, :time "2021-02-13T11:03:27.000Z"}
                          {:merchant "McDonalds", :amount 99, :time "2021-02-13T11:03:00.000Z"},
                          {:merchant "McNuggets", :amount 100, :time "2021-02-13T11:02:26.000Z"})
