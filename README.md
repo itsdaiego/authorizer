@@ -1,8 +1,5 @@
 # Authorizer
 
-# Overview
-
-This challenge uses 
 
 # Installation & Usage
 
