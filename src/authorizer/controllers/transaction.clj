@@ -19,7 +19,7 @@
 (defn create!
   [transactions account storage]
   (let [current-transaction (first transactions)
-        account-with-new-amount (set-account-new-limit account current-transaction)] ;; TODO: logic
+        account-with-new-amount (set-account-new-limit account current-transaction)]
     (transaction-db/create! storage current-transaction)
     (account-db/create! storage {:account account-with-new-amount})
     (adapter/hmap-to-json {:account account-with-new-amount :violations []})))

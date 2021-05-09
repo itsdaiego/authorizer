@@ -6,8 +6,6 @@
                  [cheshire "5.8.0"]
                  [clj-time "0.15.2"]]
 
-  :plugins [[jonase/eastwood "0.4.0"]]
-
   :main authorizer.ports.stdin
 
   :repl-options {:init-ns authorizer.ports.stdin})
