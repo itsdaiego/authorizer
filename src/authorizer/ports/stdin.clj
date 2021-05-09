@@ -1,18 +1,10 @@
 (ns authorizer.ports.stdin
-  (:require [authorizer.controllers.account :as account-controller]
-            [authorizer.controllers.transaction :as transaction-controller]
-            [authorizer.ports.storage :refer [create-in-memory-storage]]))
-
-;; TODO: send to controller layer
-(defn perform-operation
-  [payload storage]
-  (cond
-    (.contains payload "account") (account-controller/create-account payload storage)
-    (.contains payload "transaction") (transaction-controller/create-transaction! payload storage)))
+  (:require [authorizer.ports.storage :refer [create-in-memory-storage]]
+            [authorizer.router :as router]))
 
 (defn -main
   []
   (let [storage (create-in-memory-storage)]
     (doseq [payload (line-seq (java.io.BufferedReader. *in*))]
-      (-> (perform-operation payload storage)
+      (-> (router/forward-operation payload storage)
           (println)))))
