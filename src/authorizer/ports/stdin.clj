@@ -3,6 +3,7 @@
             [authorizer.controllers.transaction :as transaction-controller]
             [authorizer.ports.storage :refer [create-in-memory-storage]]))
 
+;; TODO: send to controller layer
 (defn perform-operation
   [payload storage]
   (cond
