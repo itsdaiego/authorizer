@@ -22,7 +22,7 @@
         account-with-new-amount (assoc account :available-limit (- (:available-limit account) (:amount current-transaction)))]
     (transaction-db/create! storage current-transaction)
     (account-db/create! storage {:account account-with-new-amount})
-    (adapter/hmap-to-json {:account account-with-new-amount})))
+    (adapter/hmap-to-json {:account account-with-new-amount :violations []})))
 
 (defn create-transaction!
   [payload storage]
