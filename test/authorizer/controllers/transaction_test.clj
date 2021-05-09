@@ -3,7 +3,8 @@
             [clojure.test :refer [deftest testing is]]
             [authorizer.ports.storage :refer [create-in-memory-storage]]
             [authorizer.db.transaction :as transaction-db]
-            [authorizer.db.account :as account-db]))
+            [authorizer.db.account :as account-db]
+            [authorizer.adapter :as adapter]))
 
 (deftest transaction-with-valid-conditions
   (testing "should create transaction "
@@ -25,7 +26,7 @@
           account-not-initialized-violation {:account {} :violations ["account-not-initialized"]}]
 
       (is (= (transaction-db/select-all storage) nil))
-      (is (= (create-transaction! input storage) account-not-initialized-violation)))))
+      (is (= (create-transaction! input storage) (adapter/hmap-to-json account-not-initialized-violation))))))
 
 (deftest transaction-with-card-inactive
   (testing "should validate transaction with inactive card"
@@ -36,7 +37,7 @@
       (account-db/create! storage {:account {:active-card false, :available-limit 100}})
 
       (is (= (transaction-db/select-all storage) nil))
-      (is (= (create-transaction! input storage) card-inactive-violation)))))
+      (is (= (create-transaction! input storage) (adapter/hmap-to-json card-inactive-violation))))))
 
 (deftest transaction-with-high-frequency
   (testing "should validate transaction with high frequency conditions"
@@ -55,7 +56,7 @@
 
       (create-transaction! sample3 storage)
 
-      (is (= (create-transaction! input storage) high-frequency-violation))
+      (is (= (create-transaction! input storage) (adapter/hmap-to-json high-frequency-violation)))
       (is (= (count (transaction-db/select-all storage)) 3)))))
 
 (deftest transaction-doubled
@@ -69,5 +70,5 @@
 
       (create-transaction! sample1 storage)
 
-      (is (= (create-transaction! input storage) high-frequency-violation))
+      (is (= (create-transaction! input storage) (adapter/hmap-to-json high-frequency-violation)))
       (is (= (count (transaction-db/select-all storage)) 1)))))

@@ -5,8 +5,8 @@
 
 (defn create-account
   [payload storage]
-  (let [payload (adapter/json-to-map payload)
+  (let [payload (adapter/json-to-hmap payload)
         is-account-initialized? (account-logic/is-account-initialized? (account-db/select-all storage))]
     (cond
-      is-account-initialized? (assoc payload :violations ["account-already-initialized"])
-      :else (account-db/create! storage {:account (:account payload) :violations []}))))
+      is-account-initialized? (adapter/hmap-to-json (assoc payload :violations ["account-already-initialized"]))
+      :else (adapter/hmap-to-json (account-db/create! storage {:account (:account payload) :violations []})))))

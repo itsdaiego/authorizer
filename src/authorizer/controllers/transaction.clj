@@ -22,15 +22,15 @@
         account-with-new-amount (assoc account :available-limit (- (:available-limit account) (:amount current-transaction)))]
     (transaction-db/create! storage current-transaction)
     (account-db/create! storage {:account account-with-new-amount})
-    {:account account-with-new-amount}))
+    (adapter/hmap-to-json {:account account-with-new-amount})))
 
 (defn create-transaction!
   [payload storage]
-  (let [transaction (:transaction (adapter/json-to-map payload))
+  (let [transaction (:transaction (adapter/json-to-hmap payload))
         transactions (conj (transaction-db/select-all storage) transaction) ;; TODO: get transactions from last minute only
         account (account-db/select-all storage)
         authorization-validation (perform-authorization-validation transactions account)]
 
     (if (nil? authorization-validation)
       (-> (create! transactions account storage))
-      (assoc {} :account (if (nil? account) {} account) :violations authorization-validation))))
+      (adapter/hmap-to-json (assoc {} :account (if (nil? account) {} account) :violations authorization-validation)))))
