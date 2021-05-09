@@ -3,7 +3,7 @@
 
 # Installation & Usage
 
-To run this project you will need both [docker](https://www.docker.com/) installed.
+To run this project you will need [docker](https://www.docker.com/) installed.
 
 To run the application follow these steps:
 
