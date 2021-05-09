@@ -2,7 +2,8 @@
   (:require [authorizer.controllers.transaction :refer [create-transaction!]]
             [clojure.test :refer [deftest testing is]]
             [authorizer.ports.storage :refer [create-in-memory-storage]]
-            [authorizer.protocols.storage-client :as storage-client]))
+            [authorizer.db.transaction :as transaction-db]
+            [authorizer.db.account :as account-db]))
 
 (deftest transaction-with-valid-conditions
   (testing "should create transaction "
@@ -11,11 +12,11 @@
           created-transaction {:merchant "Sorveteria Supimpa", :amount 20 :time "2019-02-13T11:00:00.000Z"}
           created-account-with-new-amount {:active-card true, :available-limit 80}]
 
-      (storage-client/create! storage #(assoc % :account {:active-card true, :available-limit 100} :violations []))
+      (account-db/create! storage {:account {:active-card true, :available-limit 100}})
       (create-transaction! input storage)
 
-      (is (= (first (:transactions (storage-client/get-all storage))) created-transaction))
-      (is (= (:account (storage-client/get-all storage)) created-account-with-new-amount)))))
+      (is (= (first (transaction-db/select-all storage)) created-transaction))
+      (is (= (account-db/select-all storage) created-account-with-new-amount)))))
 
 (deftest transaction-with-account-not-initialized
   (testing "should validate transaction with acccount not initialized"
@@ -23,7 +24,7 @@
           input "{\"transaction\": {\"merchant\": \"Sorveteria Supimpa\", \"amount\": 20, \"time\": \"2019-02-13T11:00:00.000Z\"}}"
           account-not-initialized-violation {:account {} :violations ["account-not-initialized"]}]
 
-      (is (= (:transactions (storage-client/get-all storage)) nil))
+      (is (= (transaction-db/select-all storage) nil))
       (is (= (create-transaction! input storage) account-not-initialized-violation)))))
 
 (deftest transaction-with-card-inactive
@@ -32,9 +33,9 @@
           input "{\"transaction\": {\"merchant\": \"Sorveteria Supimpa\", \"amount\": 20, \"time\": \"2019-02-13T11:00:00.000Z\"}}"
           card-inactive-violation {:account {:active-card false :available-limit 100} :violations ["card-inactive"]}]
 
-      (storage-client/create! storage #(assoc % :account {:active-card false, :available-limit 100} :violations []))
+      (account-db/create! storage {:account {:active-card false, :available-limit 100}})
 
-      (is (= (:transactions (storage-client/get-all storage)) nil))
+      (is (= (transaction-db/select-all storage) nil))
       (is (= (create-transaction! input storage) card-inactive-violation)))))
 
 (deftest transaction-with-high-frequency
@@ -46,7 +47,7 @@
           sample3 "{\"transaction\": {\"merchant\": \"Fast Noodles\", \"amount\": 5, \"time\": \"2019-02-13T11:01:50.000Z\"}}"
           high-frequency-violation {:account {:active-card true :available-limit 25} :violations ["high-frequency-small-interval"]}]
 
-      (storage-client/create! storage #(assoc % :account {:active-card true, :available-limit 100} :violations []))
+      (account-db/create! storage {:account {:active-card true, :available-limit 100}})
 
       (create-transaction! sample1 storage)
 
@@ -55,7 +56,7 @@
       (create-transaction! sample3 storage)
 
       (is (= (create-transaction! input storage) high-frequency-violation))
-      (is (= (count (:transactions (storage-client/get-all storage))) 3)))))
+      (is (= (count (transaction-db/select-all storage)) 3)))))
 
 (deftest transaction-doubled
   (testing "should validate doubled transactions"
@@ -64,9 +65,9 @@
           sample1 "{\"transaction\": {\"merchant\": \"Sorveteria Supimpa\", \"amount\": 20, \"time\": \"2019-02-13T11:00:00.000Z\"}}"
           high-frequency-violation {:account {:active-card true :available-limit 80} :violations ["double-transaction"]}]
 
-      (storage-client/create! storage #(assoc % :account {:active-card true, :available-limit 100} :violations []))
+      (account-db/create! storage {:account {:active-card true, :available-limit 100}})
 
       (create-transaction! sample1 storage)
 
       (is (= (create-transaction! input storage) high-frequency-violation))
-      (is (= (count (:transactions (storage-client/get-all storage))) 1)))))
+      (is (= (count (transaction-db/select-all storage)) 1)))))

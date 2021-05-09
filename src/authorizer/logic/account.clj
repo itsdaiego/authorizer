@@ -2,7 +2,7 @@
 
 (defn is-account-initialized?
   [account]
-  (not= (:account account) nil))
+  (not= account nil))
 
 (defn is-card-active?
   [account]
