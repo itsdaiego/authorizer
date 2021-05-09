@@ -64,11 +64,11 @@
     (let [storage (create-in-memory-storage)
           input "{\"transaction\": {\"merchant\": \"Sorveteria Supimpa\", \"amount\": 20, \"time\": \"2019-02-13T11:00:00.000Z\"}}"
           sample1 "{\"transaction\": {\"merchant\": \"Sorveteria Supimpa\", \"amount\": 20, \"time\": \"2019-02-13T11:00:00.000Z\"}}"
-          high-frequency-violation {:account {:active-card true :available-limit 80} :violations ["double-transaction"]}]
+          double-transaction {:account {:active-card true :available-limit 80} :violations ["double-transaction"]}]
 
       (account-db/create! storage {:account {:active-card true, :available-limit 100}})
 
       (create-transaction! sample1 storage)
 
-      (is (= (create-transaction! input storage) (adapter/hmap-to-json high-frequency-violation)))
+      (is (= (create-transaction! input storage) (adapter/hmap-to-json double-transaction)))
       (is (= (count (transaction-db/select-all storage)) 1)))))
