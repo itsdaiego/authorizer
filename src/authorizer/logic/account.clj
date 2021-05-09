@@ -7,3 +7,7 @@
 (defn is-card-active?
   [account]
   (= (:active-card account) true))
+
+(defn set-account-new-limit
+  [account transaction]
+  (assoc account :available-limit (- (:available-limit account) (:amount transaction))))

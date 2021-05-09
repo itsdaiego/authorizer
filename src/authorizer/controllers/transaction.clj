@@ -1,6 +1,6 @@
 (ns authorizer.controllers.transaction
   (:require [authorizer.adapter :as adapter]
-            [authorizer.logic.account :refer [is-account-initialized? is-card-active?]]
+            [authorizer.logic.account :refer [is-account-initialized? is-card-active? set-account-new-limit]]
             [authorizer.logic.transaction :refer [has-sufficient-funds? has-high-frequency-transactions? has-doubled-transactions?]]
             [authorizer.db.account :as account-db]
             [authorizer.db.transaction :as transaction-db]))
@@ -19,7 +19,7 @@
 (defn create!
   [transactions account storage]
   (let [current-transaction (first transactions)
-        account-with-new-amount (assoc account :available-limit (- (:available-limit account) (:amount current-transaction)))]
+        account-with-new-amount (set-account-new-limit account current-transaction)] ;; TODO: logic
     (transaction-db/create! storage current-transaction)
     (account-db/create! storage {:account account-with-new-amount})
     (adapter/hmap-to-json {:account account-with-new-amount :violations []})))
@@ -27,7 +27,7 @@
 (defn create-transaction!
   [payload storage]
   (let [transaction (:transaction (adapter/json-to-hmap payload))
-        transactions (conj (transaction-db/select-all storage) transaction) ;; TODO: get transactions from last minute only
+        transactions (conj (transaction-db/select-all storage) transaction)
         account (account-db/select-all storage)
         authorization-validation (perform-authorization-validation transactions account)]
 
