@@ -8,13 +8,19 @@ This challenge uses
 
 To run this project you will need both [docker](https://www.docker.com/) installed.
 
-To run the application follow these steps
+To run the application follow these steps:
 
 - `make build`
 
 - `make run-app < operations-samples/create-valid-transaction-flow`
 
-There are different types of operations stored in `operations-samples`, each dealing with different type of valid operation and invalid ones.
+There are different types of operations stored in `operations-samples`, each dealing with different types of valid operation and invalid ones.
+
+To run all automated tests:
+
+- `make build-tests`
+
+- `make run-tests`
 
 
 # Architecture
@@ -40,3 +46,13 @@ Layer responsible to deal with the business logic, it does not have knowledge ab
 ## Db
 
 Layer responsible to abstract the implementation of creating or reading data from storage.
+
+# Tests
+
+## Controller
+
+These are integration tests that deals with side effects, all databases operations for both account and transactions are tested in this layer.
+
+## Logic
+
+In contrast, these are unit tests that deals only with the business logic not having any side effect whatsoever.
